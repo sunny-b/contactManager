@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en-US">
+
+  <head>
+    <title>Contact Manager</title>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="stylesheets/style.css" />
+  </head>
+
+  <body>
+    <header>
+      <h1>Contact Manager</h1>
+      <h2>Using Localstorage, Handlebars, and Bootstrap</h2>
+    </header>
+    <main>
+      <section class="add-contact">
+        <a class="btn btn-default add-contact hover" href="#" role="button">Add Contact</a>
+        <input type="text" class="form-control search" placeholder="search">
+      </section>
+
+      <section class="contacts">
+      </section>
+
+      <div id="contact-form">
+        <h2>Create Contact</h2>
+        <form action="" method="post">
+          <div class="form-group">
+            <label for="name">Full Name:</label>
+            <input id="name" name="name" type="text" class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="email">Full Name:</label>
+            <input id="email" name="email" type="email" class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="phone">Telephone Number:</label>
+            <input id="phone" name="phone" type="tel" class="form-control">
+          </div>
+          <div class="form-group">
+            <input class="btn btn-default hover form-btn" type="submit" value="Submit">
+            <input class="btn btn-default hover form-btn" type="button" value="Cancel">
+          </div>
+        </form>
+      </div>
+    </main>
+
+    <script id="contacts" type="text/x-handlebars">
+      {{#if contacts}}
+        {{#each contacts}}
+          {{> contact}}
+        {{\each}}
+      {{else}}
+      <h3>There are no contacts</h3>
+      <a class="btn btn-default add-contact hover" href="#" role="button">Add Contact</a>
+    </script>
+
+    <script id="contact" data-type="partial" type="text/x-handlebars">
+      <h3>{{name}}</h3>
+      <h4>Phone Number:</h4>
+      <p>{{phone}}</p>
+      <h4>Email:</h4>
+      <p>{{email}}</p>
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.js"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.min.js"
+      integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+      crossorigin="anonymous"></script>
+    <script src="javascript/script.js"></script>
+  </body>
+</html>
