@@ -1,5 +1,24 @@
 var templates = {};
 
+var tags = {
+  all: function() {
+    return storage.get('tags', true);
+  },
+  update: function() {
+    var tags = contacts.all().map(function(contact) {
+      return contact.tags;
+    });
+    var flattenTags = [].concat.apply([], tags);
+    var uniqueTags = [];
+
+    $.each(flattenTags, function(_, tag){
+      if ($.inArray(tag, uniqueTags) === -1) uniqueTags.push(tag);
+    });
+
+    storage.set('tags', uniqueTags);
+  },
+};
+
 var storage = {
   get: function(key, parse) {
     return parse ? JSON.parse(localStorage.getItem(key)) : localStorage.getItem(key);
@@ -13,6 +32,7 @@ var storage = {
   init: function() {
     localStorage['contactIds'] = localStorage['contactIds'] || '[]';
     localStorage['currentID'] = localStorage['currentID'] || '1';
+    localStorage['tags'] = localStorage['tags'] || '[]';
   }
 };
 
@@ -20,7 +40,7 @@ var contacts = {
   retrieveIds: function() {
     return storage.get('contactIds', true);
   },
-  getAll: function() {
+  all: function() {
     var contactIDs = this.retrieveIds();
 
     return contactIDs.map(function(id) {
@@ -63,20 +83,23 @@ var contacts = {
       contact[obj.name] = isTags ? obj.value.split(/,\s*/) : obj.value;
     });
 
-    this.updateStorage(contact);
+    this.save(contact);
+    return this;
   },
-  updateStorage: function(contact) {
+  save: function(contact) {
     var allIds = this.retrieveIds();
     allIds.includes(contact.id) ? null : allIds.push(contact.id);
 
     storage.set('contactIds', allIds);
     storage.set('contact-' + contact.id, contact);
   },
-  show: function(filteredContactIds, id, el) {
-    if (filteredContactIds.includes(id)) { el.show(); }
-  },
-  hide: function(filteredContactIds, id, el) {
-    if (filteredContactIds.includes(id)) { el.hide(); }
+  show: function(filtered) {
+    var allContacts = filtered ? filtered : this.all();
+    var allTags = tags.all();
+
+    $('main').html($(templates.contacts({ contacts: allContacts,
+                                          tags: allTags,
+                                          currentID: storage.get('currentID') })));
   },
   new: function() {
     return {
@@ -101,27 +124,10 @@ var manager = {
       Handlebars.registerPartial($(this).attr('id'), $(this).html());
     });
   },
-  extractTags: function(contacts) {
-    var tags = contacts.map(function(contact) {
-      return contact.tags;
-    });
-    var flattenTags = [].concat.apply([], tags);
-    var uniqueTags = [];
-
-    $.each(flattenTags, function(_, tag){
-      if ($.inArray(tag, uniqueTags) === -1) uniqueTags.push(tag);
-    });
-
-    return uniqueTags;
-  },
   showContacts: function(e) {
-    if (e) { e.preventDefault() }
-    var allContacts = contacts.getAll();
-    var allTags = this.extractTags(allContacts);
+    e.preventDefault()
 
-    $('main').html($(templates.contacts({ contacts: allContacts,
-                                          tags: allTags,
-                                          currentID: storage.get('currentID') })));
+    contacts.show();
   },
   contactForm: function(e) {
     e.preventDefault();
@@ -134,18 +140,20 @@ var manager = {
     e.preventDefault();
     var $e = $(e.target);
 
-    contacts.update($e);
-    this.showContacts();
+    contacts.update($e).show();
   },
   deleteContact: function(e) {
     e.preventDefault();
+    var remaining;
+
     if(confirm('Are you sure you want to delete this contact?')) {
-      contacts.delete($(e.target));
+      remaining = contacts.delete($(e.target));
     } else {
       return;
     }
 
-    this.showContacts();
+    tags.update();
+    contacts.show();
   },
   noMatches: function(tag, query) {
     var message = '<p>No contacts';
@@ -157,7 +165,7 @@ var manager = {
     $('.contacts').html($(message));
   },
   select: function(callback) {
-    return contacts.getAll().filter(callback);
+    return contacts.all().filter(callback);
   },
   filterMatches: function(tag, regex, query) {
     var filteredContacts = this.select(function(contact) {
@@ -165,12 +173,7 @@ var manager = {
     });
 
     if (filteredIds.length > 0) {
-      $('.contact').each(function() {
-        var $contact = $(this);
-        var contactId = $contact.data('id');
-
-        filteredIds.includes(contactId) ? $contact.show() : $contact.hide();
-      });
+      contacts.show(filteredContacts);
     } else {
       this.noMatches(tag, query);
     }

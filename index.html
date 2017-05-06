@@ -15,9 +15,12 @@
     <main>
     </main>
 
-    <script id="contacts" type="text/x-handlebars">
+    <script id="homepage" type="text/x-handlebars">
       <aside>
-        <h3>Filter by Tags</h3>
+        <div class="filter">
+          <h3>Filter by Tags</h3>
+          <a href="#" class="reset auto">Reset</a>
+        </div>
         <form id="tagForm" action="" method="get">
           <fieldset>
             {{#if tags}}
@@ -41,15 +44,19 @@
       </section>
 
       <section class="contacts">
-        {{#if contacts}}
-          {{#each contacts}}
-            {{> contact}}
-          {{/each}}
-        {{else}}
-        <h3>There are no contacts</h3>
-        <a class="button add" href="#">Add Contact</a>
-        {{/if}}
+        {{> contacts}}
       </section>
+    </script>
+
+    <script id="contacts" data-type="partial" type="text/x-handlebars">
+      {{#if contacts}}
+        {{#each contacts}}
+          {{> contact}}
+        {{/each}}
+      {{else}}
+      <h3>There are no contacts</h3>
+      <a class="button add" href="#">Add Contact</a>
+      {{/if}}
     </script>
 
     <script id="contact" data-type="partial" type="text/x-handlebars">
@@ -63,8 +70,8 @@
         <ul class="contact-tags">
         {{> contacttags}}
         </ul>
-        <a href="#" class="edit button">Edit</a>
-        <a href="#" class="delete button">Delete</a>
+        <a href="#" class="edit button auto">Edit</a>
+        <a href="#" class="delete button auto">Delete</a>
       </div>
     </script>
 

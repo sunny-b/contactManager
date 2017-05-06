@@ -1,5 +1,24 @@
 var templates = {};
 
+var tags = {
+  all: function() {
+    return storage.get('tags', true);
+  },
+  update: function() {
+    var tags = contacts.all().map(function(contact) {
+      return contact.tags;
+    });
+    var flattenTags = [].concat.apply([], tags);
+    var uniqueTags = [];
+
+    $.each(flattenTags, function(_, tag){
+      if ($.inArray(tag, uniqueTags) === -1) uniqueTags.push(tag);
+    });
+
+    storage.set('tags', uniqueTags);
+  },
+};
+
 var storage = {
   get: function(key, parse) {
     return parse ? JSON.parse(localStorage.getItem(key)) : localStorage.getItem(key);
@@ -13,6 +32,7 @@ var storage = {
   init: function() {
     localStorage['contactIds'] = localStorage['contactIds'] || '[]';
     localStorage['currentID'] = localStorage['currentID'] || '1';
+    localStorage['tags'] = localStorage['tags'] || '[]';
   }
 };
 
@@ -20,14 +40,14 @@ var contacts = {
   retrieveIds: function() {
     return storage.get('contactIds', true);
   },
-  getAll: function() {
+  all: function() {
     var contactIDs = this.retrieveIds();
 
     return contactIDs.map(function(id) {
       return storage.get('contact-' + id, true);
     });
   },
-  retrieve: function($e) {
+  get: function($e) {
     var id = $e.closest('[data-id]').data('id');
     var contact = storage.get('contact-' + id);
 
@@ -50,7 +70,7 @@ var contacts = {
   },
   update: function($e) {
     var formInfo = $e.serializeArray();
-    var contact = this.retrieveContact($e);
+    var contact = this.get($e);
     var isTags;
 
     if (contact.isNew) {
@@ -63,20 +83,21 @@ var contacts = {
       contact[obj.name] = isTags ? obj.value.split(/,\s*/) : obj.value;
     });
 
-    this.updateStorage(contact);
+    this.save(contact);
+    tags.update();
+    return this;
   },
-  updateStorage: function(contact) {
+  save: function(contact) {
     var allIds = this.retrieveIds();
     allIds.includes(contact.id) ? null : allIds.push(contact.id);
 
     storage.set('contactIds', allIds);
     storage.set('contact-' + contact.id, contact);
   },
-  show: function(filteredContactIds, id, el) {
-    if (filteredContactIds.includes(id)) { el.show(); }
-  },
-  hide: function(filteredContactIds, id, el) {
-    if (filteredContactIds.includes(id)) { el.hide(); }
+  show: function(filtered) {
+    var allContacts = filtered ? filtered : this.all();
+
+    $('.contacts').html($(templates.contacts({ contacts: allContacts })));
   },
   new: function() {
     return {
@@ -101,25 +122,12 @@ var manager = {
       Handlebars.registerPartial($(this).attr('id'), $(this).html());
     });
   },
-  extractTags: function(contacts) {
-    var tags = contacts.map(function(contact) {
-      return contact.tags;
-    });
-    var flattenTags = [].concat.apply([], tags);
-    var uniqueTags = [];
+  homePage: function(e) {
+    if (e) e.preventDefault();
+    var allContacts = contacts.all();
+    var allTags = tags.all();
 
-    $.each(flattenTags, function(_, tag){
-      if ($.inArray(tag, uniqueTags) === -1) uniqueTags.push(tag);
-    });
-
-    return uniqueTags;
-  },
-  showContacts: function(e) {
-    if (e) { e.preventDefault() }
-    var allContacts = contacts.getAll();
-    var allTags = this.extractTags(allContacts);
-
-    $('main').html($(templates.contacts({ contacts: allContacts,
+    $('main').html($(templates.homepage({ contacts: allContacts,
                                           tags: allTags,
                                           currentID: storage.get('currentID') })));
   },
@@ -135,42 +143,41 @@ var manager = {
     var $e = $(e.target);
 
     contacts.update($e);
-    this.showContacts();
+    this.homePage();
   },
   deleteContact: function(e) {
     e.preventDefault();
+    var remaining;
+
     if(confirm('Are you sure you want to delete this contact?')) {
-      contacts.delete($(e.target));
+      remaining = contacts.delete($(e.target));
     } else {
       return;
     }
 
-    this.showContacts();
+    tags.update();
+    this.homePage();
   },
   noMatches: function(tag, query) {
     var message = '<p>No contacts';
     if (tag) { message += ' with tag of <strong>' + tag + '</strong>' }
-    if (tag && query) { message += ' or' }
+    if (tag && query) { message += ' and' }
     if (query) { message += ' that start with <strong>' + query + '</strong>' }
     message += '.</p>';
 
     $('.contacts').html($(message));
   },
   select: function(callback) {
-    return contacts.getAll().filter(callback);
+    return contacts.all().filter(callback);
   },
   filterMatches: function(tag, regex, query) {
     var filteredContacts = this.select(function(contact) {
-      return contact.tags.includes(tag) || regex.test(contact.name);
+      var isTag = tag ? contact.tags.includes(tag) : true;
+      return isTag && regex.test(contact.name);
     });
-    debugger;
-    if (filteredIds.length > 0) {
-      $('.contact').each(function() {
-        var $contact = $(this);
-        var contactId = $contact.data('id');
 
-        filteredIds.includes(contactId) ? $contact.show() : $contact.hide();
-      });
+    if (filteredContacts.length > 0) {
+      contacts.show(filteredContacts);
     } else {
       this.noMatches(tag, query);
     }
@@ -187,6 +194,7 @@ var manager = {
     this.filterMatches(tag, searchRegex, query);
   },
   filterContacts: function(e) {
+
     var $el = $(e.target);
     var tag = $el.val();
     var query = $('.search').val();
@@ -196,7 +204,7 @@ var manager = {
   },
   binds: function() {
     $('main').on('click', '.add, .edit', this.contactForm.bind(this));
-    $('main').on('click', '.cancel', this.showContacts.bind(this));
+    $('main').on('click', '.cancel, .reset', this.homePage.bind(this));
     $('main').on('submit', '#contactForm', this.updateContacts.bind(this));
     $('main').on('click', '.delete', this.deleteContact.bind(this));
     $('main').on('change', ':radio', this.filterContacts.bind(this));
@@ -206,7 +214,7 @@ var manager = {
     this.cacheTemplates();
     this.registerPartials();
     storage.init();
-    this.showContacts();
+    this.homePage();
     this.binds();
   },
 };

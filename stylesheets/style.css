@@ -39,6 +39,18 @@ main {
   border-bottom: 1px solid #ddd;
   overflow: auto;
   width: 100%;
+  /*max-width: 1000px;
+  margin: 0 auto;*/
+}
+
+.filter {
+  position: relative;
+}
+
+.reset {
+  position: absolute;
+  right: 20px;
+  top: 0;
 }
 
 .filtertags {
@@ -55,7 +67,6 @@ main {
 
 section {
   width: 100%;
-  max-width: 800px;
   background: #f5f5f5;
   text-align: center;
   float: right;
@@ -125,7 +136,7 @@ a {
 
 .contact {
   width: 50%;
-  max-width: 200px;
+  max-width: 300px;
   float: left;
   margin-bottom: 25px;
   min-height: 350px;
@@ -137,7 +148,7 @@ a {
   position: relative;
 }
 
-.edit, .delete {
+.auto {
   display: inline-block;
   width: auto;
 }
@@ -158,7 +169,7 @@ a {
 .contact-tags li {
   background-color: #ccc;
   display: inline-block;
-  width: 33.3%;
+  width: 50%;
   font-size: 16px;
   text-align: center;
   border-radius: 6px;
@@ -243,4 +254,48 @@ a {
 
 .contacts .button {
   margin-top: 20px;
+}
+
+
+@media (min-width: 600px) {
+  aside {
+    float: left;
+    max-width: 150px;
+  }
+
+  section {
+    margin-left: 150px;
+    clear: none;
+    width: auto;
+    float: none;
+  }
+
+  .filtertags {
+    margin: 0 10px;
+    text-align: left;
+  }
+
+  .filtertags li {
+    display: block;
+    width: 100%;
+  }
+
+  .reset {
+    display: block;
+    position: static;
+  }
+
+  .search {
+    width: 50%;
+  }
+
+  .add {
+    width: 100px;
+    font-size: 18px;
+  }
+
+  .contact-tags li {
+    width: 33.3%;
+  }
+
 }
