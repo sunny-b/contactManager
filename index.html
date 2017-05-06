@@ -1,66 +1,138 @@
 <!doctype html>
 <html lang="en-US">
-
   <head>
     <title>Contact Manager</title>
     <meta charset="UTF-8" />
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="stylesheets/reset.css">
     <link rel="stylesheet" href="stylesheets/style.css" />
   </head>
-
   <body>
     <header>
       <h1>Contact Manager</h1>
-      <h2>Using Localstorage, Handlebars, and Bootstrap</h2>
+      <p class="subtitle">Using Localstorage and Handlebars</p>
     </header>
+
     <main>
-      <section class="add-contact">
-        <a class="btn btn-default add-contact hover" href="#" role="button">Add Contact</a>
-        <input type="text" class="form-control search" placeholder="search">
-      </section>
-
-      <section class="contacts">
-      </section>
-
-      <div id="contact-form">
-        <h2>Create Contact</h2>
-        <form action="" method="post">
-          <div class="form-group">
-            <label for="name">Full Name:</label>
-            <input id="name" name="name" type="text" class="form-control">
-          </div>
-          <div class="form-group">
-            <label for="email">Full Name:</label>
-            <input id="email" name="email" type="email" class="form-control">
-          </div>
-          <div class="form-group">
-            <label for="phone">Telephone Number:</label>
-            <input id="phone" name="phone" type="tel" class="form-control">
-          </div>
-          <div class="form-group">
-            <input class="btn btn-default hover form-btn" type="submit" value="Submit">
-            <input class="btn btn-default hover form-btn" type="button" value="Cancel">
-          </div>
-        </form>
-      </div>
     </main>
 
     <script id="contacts" type="text/x-handlebars">
-      {{#if contacts}}
-        {{#each contacts}}
-          {{> contact}}
-        {{\each}}
-      {{else}}
-      <h3>There are no contacts</h3>
-      <a class="btn btn-default add-contact hover" href="#" role="button">Add Contact</a>
+      <aside>
+        <h3>Filter by Tags</h3>
+        <form id="tagForm" action="" method="get">
+          <fieldset>
+            {{#if tags}}
+            <ul class="filtertags">
+              {{> filtertags}}
+            </ul>
+            {{else}}
+            <p>No available tags</p>
+            {{/if}}
+          </fieldset>
+        </form>
+      </aside>
+
+      <section class="add-contact">
+        <div data-id={{currentID}} class="col-2">
+          <a class="button add" href="#">Add Contact</a>
+        </div>
+        <div class="col-2">
+          <input type="text" class="search" placeholder="Search">
+        </div>
+      </section>
+
+      <section class="contacts">
+        {{#if contacts}}
+          {{#each contacts}}
+            {{> contact}}
+          {{/each}}
+        {{else}}
+        <h3>There are no contacts</h3>
+        <a class="button add" href="#">Add Contact</a>
+        {{/if}}
+      </section>
     </script>
 
     <script id="contact" data-type="partial" type="text/x-handlebars">
-      <h3>{{name}}</h3>
-      <h4>Phone Number:</h4>
-      <p>{{phone}}</p>
-      <h4>Email:</h4>
-      <p>{{email}}</p>
+      <div class="contact" data-id="{{id}}">
+        <h3>{{name}}</h3>
+        <h4>Phone Number:</h4>
+        <p>{{phone}}</p>
+        <h4>Email:</h4>
+        <p>{{email}}</p>
+        <h4>Tags:</h4>
+        <ul class="contact-tags">
+        {{> contacttags}}
+        </ul>
+        <a href="#" class="edit button">Edit</a>
+        <a href="#" class="delete button">Delete</a>
+      </div>
+    </script>
+
+    <script id="filtertags" data-type="partial" type="text/x-handlebars">
+      {{#each tags}}
+      <li>
+        <label>
+          <input name="tags" type="radio" value="{{this}}"/>
+          {{this}}
+        </label>
+      </li>
+      {{/each}}
+    </script>
+
+    <script id="contacttags" data-type="partial" type="text/x-handlebars">
+      {{#each tags}}
+        <li class="tag" name="{{this}}">{{this}}</li>
+      {{/each}}
+    </script>
+
+    <script id="contact_form" type="text/x-handlebars">
+      <div class="contact-form">
+        <h2>
+          {{#if isNew}}
+          Create Contact
+          {{else}}
+          Edit Contact
+          {{/if}}
+        </h2>
+
+        <hr>
+
+        <form id="contactForm" data-id="{{id}}" action="" method="post">
+          <div class="form_group">
+            <label for="name">Full Name:</label>
+            <input id="name" name="name" type="text" value="{{name}}" required>
+          </div>
+
+          <div class="form_group">
+            <label for="email">E-Mail:</label>
+            <input id="email" name="email" type="email" value="{{email}}" required>
+          </div>
+
+          <div class="form_group">
+            <label for="phone">Telephone Number:</label>
+            <input id="phone" name="phone" type="tel" value="{{phone}}" required>
+          </div>
+
+          <div class="form_group">
+            <label for="tag_names">Tags:</label>
+            <input id="tag_names" name="tags" type="text" placeholder="Separate tags by comma" value="{{tags}}">
+          </div>
+
+          <div class="form_buttons">
+            <div class="button-container">
+              {{#if isNew}}
+              <input class="button submit" type="submit" value="Submit">
+              {{else}}
+              <input class="button edit-contact" type="submit" value="Edit">
+              {{/if}}
+            </div>
+
+            <div class="button-container">
+              <input class="button cancel" type="button" value="Cancel">
+            </div>
+          </div>
+        </form>
+      </div>
     </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.js"></script>
@@ -68,6 +140,6 @@
       src="https://code.jquery.com/jquery-3.2.1.min.js"
       integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
       crossorigin="anonymous"></script>
-    <script src="javascript/script.js"></script>
+    <script src="javascripts/script.js"></script>
   </body>
 </html>

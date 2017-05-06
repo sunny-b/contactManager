@@ -163,7 +163,7 @@ var manager = {
     var filteredContacts = this.select(function(contact) {
       return contact.tags.includes(tag) || regex.test(contact.name);
     });
-
+    debugger;
     if (filteredIds.length > 0) {
       $('.contact').each(function() {
         var $contact = $(this);
