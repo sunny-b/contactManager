@@ -85,7 +85,6 @@ var contacts = {
 
     this.save(contact);
     tags.update();
-    return this;
   },
   save: function(contact) {
     var allIds = this.retrieveIds();
