@@ -136,7 +136,6 @@ a {
 
 .contact {
   width: 50%;
-  max-width: 300px;
   float: left;
   margin-bottom: 25px;
   min-height: 350px;
@@ -297,5 +296,10 @@ a {
   .contact-tags li {
     width: 33.3%;
   }
+}
 
+@media (min-width: 900px) {
+  .contact {
+    width: 33.3%;
+  }
 }

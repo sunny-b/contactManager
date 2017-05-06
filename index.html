@@ -16,36 +16,38 @@
     </main>
 
     <script id="homepage" type="text/x-handlebars">
-      <aside>
-        <div class="filter">
-          <h3>Filter by Tags</h3>
-          <a href="#" class="reset auto">Reset</a>
-        </div>
-        <form id="tagForm" action="" method="get">
-          <fieldset>
-            {{#if tags}}
-            <ul class="filtertags">
-              {{> filtertags}}
-            </ul>
-            {{else}}
-            <p>No available tags</p>
-            {{/if}}
-          </fieldset>
-        </form>
-      </aside>
+      <div class="homepage">
+        <aside>
+          <div class="filter">
+            <h3>Filter by Tags</h3>
+            <a href="#" class="reset auto">Reset</a>
+          </div>
+          <form id="tagForm" action="" method="get">
+            <fieldset>
+              {{#if tags}}
+              <ul class="filtertags">
+                {{> filtertags}}
+              </ul>
+              {{else}}
+              <p>No available tags</p>
+              {{/if}}
+            </fieldset>
+          </form>
+        </aside>
 
-      <section class="add-contact">
-        <div data-id={{currentID}} class="col-2">
-          <a class="button add" href="#">Add Contact</a>
-        </div>
-        <div class="col-2">
-          <input type="text" class="search" placeholder="Search">
-        </div>
-      </section>
+        <section class="add-contact">
+          <div data-id={{currentID}} class="col-2">
+            <a class="button add" href="#">Add Contact</a>
+          </div>
+          <div class="col-2">
+            <input type="text" class="search" placeholder="Search">
+          </div>
+        </section>
 
-      <section class="contacts">
-        {{> contacts}}
-      </section>
+        <section class="contacts">
+          {{> contacts}}
+        </section>
+      </div>
     </script>
 
     <script id="contacts" data-type="partial" type="text/x-handlebars">
