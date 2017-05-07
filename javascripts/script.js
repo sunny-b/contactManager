@@ -78,9 +78,9 @@ var contacts = {
       storage.set('currentID', contact.id + 1);
     }
 
-    formInfo.forEach(function(obj) {
-      isTags = obj.name === 'tags';
-      contact[obj.name] = isTags ? obj.value.split(/,\s*/) : obj.value;
+    formInfo.forEach(function(field) {
+      isTags = field.name === 'tags';
+      contact[field.name] = isTags ? field.value.split(/,\s*/) : field.value;
     });
 
     this.save(contact);
@@ -148,7 +148,7 @@ var manager = {
     setTimeout(function() {
       self.$main.html($(templates.contact_form(contact)));
       self.$main.slideDown();
-    }, 500);
+    }, 400);
   },
   updateContacts: function(e) {
     e.preventDefault();
