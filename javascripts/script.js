@@ -111,6 +111,7 @@ var contacts = {
 };
 
 var manager = {
+  $main: $('main'),
   cacheTemplates: function() {
     $('[type*=handlebars]').each(function() {
       templates[$(this).attr('id')] = Handlebars.compile($(this).html());
@@ -125,17 +126,29 @@ var manager = {
     if (e) e.preventDefault();
     var allContacts = contacts.all();
     var allTags = tags.all();
+    var self = this;
 
-    $('main').html($(templates.homepage({ contacts: allContacts,
-                                          tags: allTags,
-                                          currentID: storage.get('currentID') })));
+    this.$main.slideUp();
+
+    setTimeout(function() {
+      self.$main.html($(templates.homepage({ contacts: allContacts,
+                                            tags: allTags,
+                                            currentID: storage.get('currentID') })));
+      self.$main.slideDown();
+    }, 400);
   },
   contactForm: function(e) {
     e.preventDefault();
     var $e = $(e.target);
-
     var contact = contacts.get($e);
-    $('main').html($(templates.contact_form(contact)));
+    var self = this;
+
+    this.$main.slideUp();
+
+    setTimeout(function() {
+      self.$main.html($(templates.contact_form(contact)));
+      self.$main.slideDown();
+    }, 500);
   },
   updateContacts: function(e) {
     e.preventDefault();
@@ -202,12 +215,12 @@ var manager = {
     this.filterMatches(tag, searchRegex, query);
   },
   binds: function() {
-    $('main').on('click', '.add, .edit', this.contactForm.bind(this));
-    $('main').on('click', '.cancel, .reset', this.homePage.bind(this));
-    $('main').on('submit', '#contactForm', this.updateContacts.bind(this));
-    $('main').on('click', '.delete', this.deleteContact.bind(this));
-    $('main').on('change', ':radio', this.filterContacts.bind(this));
-    $('main').on('keyup', '.search', this.queryContacts.bind(this));
+    this.$main.on('click', '.add, .edit', this.contactForm.bind(this));
+    this.$main.on('click', '.cancel, .reset', this.homePage.bind(this));
+    this.$main.on('submit', '#contactForm', this.updateContacts.bind(this));
+    this.$main.on('click', '.delete', this.deleteContact.bind(this));
+    this.$main.on('change', ':radio', this.filterContacts.bind(this));
+    this.$main.on('keyup', '.search', this.queryContacts.bind(this));
   },
   init: function() {
     this.cacheTemplates();
