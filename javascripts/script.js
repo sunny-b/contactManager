@@ -124,18 +124,19 @@ var manager = {
   },
   homePage: function(e) {
     if (e) e.preventDefault();
-    var allContacts = contacts.all();
-    var allTags = tags.all();
     var self = this;
 
     this.$main.slideUp();
 
     setTimeout(function() {
-      self.$main.html($(templates.homepage({ contacts: allContacts,
-                                            tags: allTags,
-                                            currentID: storage.get('currentID') })));
+      self.resetHome();
       self.$main.slideDown();
     }, 400);
+  },
+  resetHome: function(e) {
+    this.$main.html($(templates.homepage({ contacts: contacts.all(),
+                                          tags: tags.all(),
+                                          currentID: storage.get('currentID') })));
   },
   contactForm: function(e) {
     e.preventDefault();
@@ -168,7 +169,7 @@ var manager = {
     }
 
     tags.update();
-    this.homePage();
+    this.resetHome();
   },
   noMatches: function(tag, query) {
     var message = '<p>No contacts';
@@ -216,7 +217,8 @@ var manager = {
   },
   binds: function() {
     this.$main.on('click', '.add, .edit', this.contactForm.bind(this));
-    this.$main.on('click', '.cancel, .reset', this.homePage.bind(this));
+    this.$main.on('click', '.cancel', this.homePage.bind(this));
+    this.$main.on('click', '.reset', this.resetHome.bind(this));
     this.$main.on('submit', '#contactForm', this.updateContacts.bind(this));
     this.$main.on('click', '.delete', this.deleteContact.bind(this));
     this.$main.on('change', ':radio', this.filterContacts.bind(this));
